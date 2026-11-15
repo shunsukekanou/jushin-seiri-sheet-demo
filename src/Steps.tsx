@@ -71,12 +71,14 @@ function Step1({ d, setD }: Props) {
         value={d.also}
         onChange={(v) => setD((x) => ({ ...x, also: v as string[] }))}
       />
+      <h3 className="sh">これから受診する病院について（任意）</h3>
+      <p className="hint">シートの右上に載ります。書かなくても大丈夫です。</p>
       <label className="lab" htmlFor="pl">
-        受診先・診療科（任意）
+        受診する病院・診療科
       </label>
-      <input id="pl" value={d.place} placeholder="例：内科" onChange={(e) => setD((x) => ({ ...x, place: e.target.value }))} />
+      <input id="pl" value={d.place} placeholder="例：内科、○○クリニック" onChange={(e) => setD((x) => ({ ...x, place: e.target.value }))} />
       <label className="lab" htmlFor="dt">
-        受診日
+        受診する日（今日の日付が入っています）
       </label>
       <input id="dt" type="date" value={d.date} onChange={(e) => setD((x) => ({ ...x, date: e.target.value }))} />
     </>
