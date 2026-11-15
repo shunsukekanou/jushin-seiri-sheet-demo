@@ -174,7 +174,7 @@ export default function App() {
               お薬の記録を追加する
               <small>
                 {mineMeds.length
-                  ? `登録済み ${mineMeds.length}件：${mineMeds.map((m) => m.name).join('、')}`
+                  ? `登録済み ${mineMeds.length}件`
                   : '飲んでいるお薬を登録しておく（任意）'}
               </small>
             </button>
