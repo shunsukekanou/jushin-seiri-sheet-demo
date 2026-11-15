@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { emptyDraft, fmtDate, SAMPLES } from './data'
+import { emptyDraft, fmtDate, mainLabel, SAMPLES } from './data'
 import { Kanpe } from './Kanpe'
 import { MedsEditor } from './Meds'
 import { Sheet } from './Sheet'
@@ -11,7 +11,7 @@ type Screen = 'home' | 'meds' | 'step' | 'result'
 type View = 'kanpe' | 'sheet'
 
 const hasContent = (d: Draft) =>
-  !!(d.main || d.topicMemo || d.since || d.freq || d.triggers.length || d.asks.length || d.tried || Object.keys(d.feel).length || d.also.length || Object.keys(d.medLogs).length || d.place || d.whenMemo || d.feelMemo || d.askMemo)
+  !!(d.main || d.topicMemo || d.since || d.freq || d.triggers.length || d.asks.length || d.tried || Object.keys(d.feel).length || d.also.length || d.mainOther || Object.keys(d.medLogs).length || d.place || d.whenMemo || d.feelMemo || d.askMemo)
 
 export default function App() {
   const [mineMeds, setMineMeds] = useState<Med[]>(loadMeds)
@@ -210,7 +210,7 @@ export default function App() {
                     <span>
                       {fmtDate(h.draft.date)}
                       {h.draft.place ? `・${h.draft.place}` : ''}
-                      <small>{h.draft.main || '（伝えたいこと未入力）'}</small>
+                      <small>{mainLabel(h.draft) || '（伝えたいこと未入力）'}</small>
                     </span>
                     <span className="histBtns">
                       <button

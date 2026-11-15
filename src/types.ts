@@ -21,7 +21,9 @@ export interface Draft {
   date: string // yyyy-mm-dd
   place: string // 受診先（診療科など）
   main: string // 今日いちばん伝えたいこと
+  mainOther: string // 「その他」を選んだときの内容
   also: string[] // ほかにも気になること
+  alsoOther: string // ほかにも「その他」を選んだときの内容
   topicMemo: string
   since: string
   freq: string

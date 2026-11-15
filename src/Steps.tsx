@@ -54,6 +54,14 @@ function Step1({ d, setD }: Props) {
       </h2>
       <p className="hint">ひとつだけ選びます。決められないときは、あとで直せます。</p>
       <Chips options={TOPICS} value={d.main} onChange={(v) => setD((x) => ({ ...x, main: v as string, also: x.also.filter((a) => a !== v) }))} />
+      {d.main === 'その他' && (
+        <div className="otherBox">
+          <label className="lab" htmlFor="mo">
+            「その他」の内容を書いてください
+          </label>
+          <input id="mo" value={d.mainOther} placeholder="例：動悸、しびれ、むくみ" onChange={(e) => setD((x) => ({ ...x, mainOther: e.target.value }))} />
+        </div>
+      )}
       <label className="lab" htmlFor="tm">
         ひとことメモ（任意）
       </label>
@@ -71,6 +79,14 @@ function Step1({ d, setD }: Props) {
         value={d.also}
         onChange={(v) => setD((x) => ({ ...x, also: v as string[] }))}
       />
+      {d.also.includes('その他') && (
+        <div className="otherBox">
+          <label className="lab" htmlFor="ao">
+            「その他」の内容を書いてください
+          </label>
+          <input id="ao" value={d.alsoOther} placeholder="例：耳鳴り" onChange={(e) => setD((x) => ({ ...x, alsoOther: e.target.value }))} />
+        </div>
+      )}
       <h3 className="sh">これから受診する病院について（任意）</h3>
       <p className="hint">シートの右上に載ります。書かなくても大丈夫です。</p>
       <label className="lab" htmlFor="pl">

@@ -1,4 +1,4 @@
-import { effectLabel, FEEL_ITEMS, fmtDate, levelOf, stockLabel } from './data'
+import { alsoList, effectLabel, FEEL_ITEMS, fmtDate, levelOf, mainLabel, stockLabel } from './data'
 import type { Draft, Med } from './types'
 
 const none = <span className="none">（未入力）</span>
@@ -24,7 +24,7 @@ export function Sheet({ d, meds }: { d: Draft; meds: Med[] }) {
 
       <section className="shMain">
         <div className="shLab">① 今日いちばん伝えたいこと</div>
-        <div className="shBig">{d.main || none}</div>
+        <div className="shBig">{mainLabel(d) || none}</div>
         {d.topicMemo.trim() && <p className="shText">{d.topicMemo.trim()}</p>}
         <dl className="shWhen">
           <div>
@@ -38,7 +38,7 @@ export function Sheet({ d, meds }: { d: Draft; meds: Med[] }) {
           {d.also.length > 0 && (
             <div>
               <dt>ほかにも</dt>
-              <dd>{d.also.join('、')}</dd>
+              <dd>{alsoList(d).join('、')}</dd>
             </div>
           )}
         </dl>

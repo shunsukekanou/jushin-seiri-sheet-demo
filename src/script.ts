@@ -1,5 +1,5 @@
 // 口頭で伝えるカンペ（話す順番と、そのまま読める文）を作る
-import { effectLabel, FEEL_ITEMS, stockLabel } from './data'
+import { alsoList, effectLabel, FEEL_ITEMS, mainLabel, stockLabel } from './data'
 import type { Draft, Med } from './types'
 
 export interface Point {
@@ -26,11 +26,11 @@ export function makeScript(d: Draft, meds: Med[]): Point[] {
   const out: Point[] = []
 
   // 1 いちばん伝えたいこと
-  const main = d.main || '（まだ選んでいません）'
+  const main = mainLabel(d) || '（まだ選んでいません）'
   let t1 = `今日いちばんお伝えしたいのは、「${main}」のことです。`
   if (d.topicMemo.trim()) t1 += d.topicMemo.trim()
   const sub1: string[] = []
-  if (d.also.length) sub1.push(`ほかにも気になること：${join(d.also)}`)
+  if (d.also.length) sub1.push(`ほかにも気になること：${join(alsoList(d))}`)
   out.push({ key: 'main', title: '1　今日いちばん伝えたいこと', text: t1, sub: sub1 })
 
   // 2 いつから・どんなとき
