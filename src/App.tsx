@@ -105,19 +105,19 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="top noPrint">
-        <button type="button" className="brand" onClick={() => go('home')} aria-label="最初の画面へ">
-          <span className="logo" aria-hidden="true">
-            ✚
-          </span>
-          受診前整理シート
-        </button>
-        {screen !== 'home' && (
+      {screen !== 'home' && (
+        <header className="top noPrint">
+          <button type="button" className="brand" onClick={() => go('home')} aria-label="最初の画面へ">
+            <span className="logo" aria-hidden="true">
+              ✚
+            </span>
+            受診前整理シート
+          </button>
           <button type="button" className="btn ghost small" onClick={() => go('home')}>
             最初へ
           </button>
-        )}
-      </header>
+        </header>
+      )}
 
       {sample && (
         <div className="sampleBar noPrint" role="status">
@@ -138,7 +138,13 @@ export default function App() {
 
       {screen === 'home' && (
         <main className="home noPrint">
-          <h1>受診前の、伝え漏れを防ぐ。</h1>
+          <div className="hero">
+            <span className="logo big" aria-hidden="true">
+              ✚
+            </span>
+            <h1>受診前整理シート</h1>
+          </div>
+          <p className="tag">受診前の、伝え漏れを防ぐ。</p>
           <p className="lead">
             診察前に、選ぶだけで5つの質問に答えると、<b>医師に見せられるA4・1枚のシート</b>と、
             <b>口頭で伝えるカンペ</b>ができます。待合室で約3分です。

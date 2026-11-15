@@ -43,7 +43,10 @@ button, input, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid #f2a900; outline-offset: 2px; }
 
 /* ---- ホーム ---- */
-.home h1 { font-size: 1.7rem; line-height: 1.35; margin: .6rem 0 .4rem; color: var(--pri-d); }
+.hero { display: flex; align-items: center; gap: .7rem; margin: 1rem 0 .2rem; }
+.logo.big { width: 3.2rem; height: 3.2rem; border-radius: .9rem; font-size: 1.9rem; flex: 0 0 auto; }
+.home h1 { font-size: 2.1rem; line-height: 1.25; margin: 0; color: var(--pri-d); letter-spacing: .02em; }
+.tag { margin: 0 0 .9rem; font-size: .95rem; font-weight: 700; color: var(--sub); }
 .lead { margin: 0 0 1.1rem; color: var(--ink); }
 .homeBtns { display: grid; gap: .65rem; margin-bottom: 1.2rem; }
 .card { background: var(--paper); border: 1px solid var(--line); border-radius: 1rem; padding: .9rem 1.1rem 1.05rem; margin-bottom: .9rem; }
