@@ -279,7 +279,7 @@ export default function App() {
             ))}
           </nav>
           <div className="stepBody">
-            <StepBody step={d.step} d={d} meds={meds} setD={setD} goMeds={() => openMeds('step')} />
+            <StepBody step={d.step} d={d} meds={meds} setD={setD} goMeds={() => openMeds('step')} goStep={goStep} />
           </div>
           <div className="navBar noPrint">
             <button type="button" className="btn ghost" disabled={d.step === 0} onClick={() => goStep(d.step - 1)}>

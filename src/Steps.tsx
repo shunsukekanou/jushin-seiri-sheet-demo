@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ASKS, EFFECTS, FEEL_ITEMS, FREQ, LEVELS, SINCE, STOCKS, TOPICS, TRIGGERS } from './data'
+import { alsoList, ASKS, EFFECTS, FEEL_ITEMS, FREQ, LEVELS, mainLabel, SINCE, STOCKS, TOPICS, TRIGGERS } from './data'
 import type { Draft, Level, Med, MedLog } from './types'
 
 export const STEP_NAMES = ['伝えたいこと', 'いつから', '全体の様子', 'お薬', '聞きたいこと']
@@ -9,6 +9,7 @@ interface Props {
   meds: Med[]
   setD: (f: (d: Draft) => Draft) => void
   goMeds: () => void
+  goStep: (i: number) => void
 }
 
 function Chips({
@@ -45,6 +46,32 @@ function Chips({
     </div>
   )
 }
+
+/** ステップ2〜5の一番上：いま何の相談について答えているかを、その画面だけで分かるように見せる */
+function Ctx({ d, goStep }: { d: Draft; goStep: (i: number) => void }) {
+  const m = mainLabel(d)
+  const also = alsoList(d)
+  return (
+    <div className="ctx" role="note">
+      <div className="ctxLab">今日の相談（ステップ1で選んだこと）</div>
+      {m ? (
+        <div className="ctxMain">{m}</div>
+      ) : (
+        <div className="ctxEmpty">
+          まだ選んでいません
+          <button type="button" className="btn ghost small" onClick={() => goStep(0)}>
+            ステップ1で選ぶ
+          </button>
+        </div>
+      )}
+      {also.length > 0 && <div className="ctxSub">ほかにも：{also.join('、')}</div>}
+      {d.place && <div className="ctxSub">受診：{d.place}</div>}
+    </div>
+  )
+}
+
+/** 質問の文に入れる、相談の名前 */
+const topicOf = (d: Draft) => (mainLabel(d) ? `「${mainLabel(d)}」` : 'この相談')
 
 function Step1({ d, setD }: Props) {
   return (
@@ -101,17 +128,19 @@ function Step1({ d, setD }: Props) {
   )
 }
 
-function Step2({ d, setD }: Props) {
+function Step2({ d, setD, goStep }: Props) {
   return (
     <>
       <h2 className="qh">
         <span className="no">2</span>いつから、どんなときに？
       </h2>
-      <h3 className="sh">いつから</h3>
+      <Ctx d={d} goStep={goStep} />
+      <p className="hint">上の相談について、時期・頻度・きっかけを選びます。</p>
+      <h3 className="sh">{topicOf(d)}は、いつからですか？</h3>
       <Chips options={SINCE} value={d.since} onChange={(v) => setD((x) => ({ ...x, since: v as string }))} />
-      <h3 className="sh">どのくらいの頻度で</h3>
+      <h3 className="sh">{topicOf(d)}は、どのくらいの頻度ですか？</h3>
       <Chips options={FREQ} value={d.freq} onChange={(v) => setD((x) => ({ ...x, freq: v as string }))} />
-      <h3 className="sh">出やすいとき・きっかけ（いくつでも）</h3>
+      <h3 className="sh">{topicOf(d)}は、どんなときに出やすいですか？（いくつでも）</h3>
       <Chips multi options={TRIGGERS} value={d.triggers} onChange={(v) => setD((x) => ({ ...x, triggers: v as string[] }))} />
       <label className="lab" htmlFor="wm">
         ひとことメモ（任意）
@@ -127,7 +156,7 @@ function Step2({ d, setD }: Props) {
   )
 }
 
-function Step3({ d, setD }: Props) {
+function Step3({ d, setD, goStep }: Props) {
   const set = (item: string, k: Level) =>
     setD((x) => ({ ...x, feel: { ...x.feel, [item]: x.feel[item] === k ? '' : k } }))
   return (
@@ -135,7 +164,10 @@ function Step3({ d, setD }: Props) {
       <h2 className="qh">
         <span className="no">3</span>最近の、体と生活の様子は？
       </h2>
-      <p className="hint">診察では、一番の悩み以外の変化を言い忘れがちです。ボタンを押すだけで大丈夫です。</p>
+      <Ctx d={d} goStep={goStep} />
+      <p className="hint">
+        {topicOf(d)}のほかにも、診察では「睡眠・食事・気分」などの変化を言い忘れがちです。最近の様子を、ボタンを押すだけで選びます。
+      </p>
       <div className="feelList">
         {FEEL_ITEMS.map((it) => (
           <div className="feelRow" key={it}>
@@ -165,7 +197,7 @@ function Step3({ d, setD }: Props) {
   )
 }
 
-function Step4({ d, meds, setD, goMeds }: Props) {
+function Step4({ d, meds, setD, goMeds, goStep }: Props) {
   const log = (id: string): MedLog => d.medLogs[id] ?? { effect: '', stock: '', note: '' }
   const upd = (id: string, p: Partial<MedLog>) =>
     setD((x) => ({ ...x, medLogs: { ...x.medLogs, [id]: { ...log(id), ...p } } }))
@@ -174,7 +206,8 @@ function Step4({ d, meds, setD, goMeds }: Props) {
       <h2 className="qh">
         <span className="no">4</span>お薬の様子と、これまでの対処
       </h2>
-      <p className="hint">登録したお薬ごとに、今回の効き目と残りを選びます。</p>
+      <Ctx d={d} goStep={goStep} />
+      <p className="hint">いま使っているお薬について、効き目と、残りの量を選びます。</p>
       {meds.length === 0 && <p className="empty">登録されたお薬はありません。このまま、次へ進めます。</p>}
       {meds.map((m) => {
         const l = log(m.id)
@@ -184,7 +217,7 @@ function Step4({ d, meds, setD, goMeds }: Props) {
               {m.name}
               {m.how && <small>{m.how}</small>}
             </div>
-            <div className="miniLab">効き目</div>
+            <div className="miniLab">この薬の効き目は？</div>
             <div className="chips tight">
               {EFFECTS.map((e) => (
                 <button
@@ -198,7 +231,7 @@ function Step4({ d, meds, setD, goMeds }: Props) {
                 </button>
               ))}
             </div>
-            <div className="miniLab">残り</div>
+            <div className="miniLab">残りの量は？</div>
             <div className="chips tight">
               {STOCKS.map((e) => (
                 <button
@@ -239,7 +272,7 @@ function Step4({ d, meds, setD, goMeds }: Props) {
   )
 }
 
-function Step5({ d, setD }: Props) {
+function Step5({ d, setD, goStep }: Props) {
   const [custom, setCustom] = useState('')
   const extra = d.asks.filter((a) => !ASKS.includes(a))
   const toggle = (a: string) =>
@@ -255,7 +288,8 @@ function Step5({ d, setD }: Props) {
       <h2 className="qh">
         <span className="no">5</span>今日、先生に聞きたいことは？
       </h2>
-      <p className="hint">聞き忘れ防止のチェックリストです。当てはまるものを押してください。</p>
+      <Ctx d={d} goStep={goStep} />
+      <p className="hint">{topicOf(d)}について、先生に聞きたいことを選びます（聞き忘れ防止のチェックリストです）。</p>
       <div className="checks">
         {[...ASKS, ...extra].map((a) => {
           const on = d.asks.includes(a)
