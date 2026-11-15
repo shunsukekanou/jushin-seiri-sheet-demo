@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { alsoList, ASKS, EFFECTS, FEEL_ITEMS, FREQ, LEVELS, mainLabel, SINCE, STOCKS, TOPICS, TRIGGERS } from './data'
+import { alsoList, ASKS, EFFECTS, FEEL_ITEMS, FEEL_Q, FREQ, LEVELS, levelLabel, mainLabel, SINCE, STOCKS, TOPICS, TRIGGERS } from './data'
 import type { Draft, Level, Med, MedLog } from './types'
 
 export const STEP_NAMES = ['伝えたいこと', 'いつから', '全体の様子', 'お薬', '聞きたいこと']
@@ -171,7 +171,7 @@ function Step3({ d, setD, goStep }: Props) {
       <div className="feelList">
         {FEEL_ITEMS.map((it) => (
           <div className="feelRow" key={it}>
-            <div className="feelName">{it}</div>
+            <div className="feelName">{FEEL_Q[it] ?? it}</div>
             <div className="lv" role="radiogroup" aria-label={it}>
               {LEVELS.map((l) => (
                 <button
@@ -182,7 +182,7 @@ function Step3({ d, setD, goStep }: Props) {
                   onClick={() => set(it, l.k)}
                 >
                   <span className="mk">{l.mark}</span>
-                  {l.label}
+                  {levelLabel(it, l.k)}
                 </button>
               ))}
             </div>

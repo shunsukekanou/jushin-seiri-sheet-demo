@@ -48,6 +48,32 @@ export const LEVELS: { k: Level; label: string; mark: string }[] = [
   { k: 'hard', label: 'つらい', mark: '×' },
 ]
 
+/** 全体の様子：項目ごとに合う言葉（良い・変わらない・少し悪い・悪い の4段階に対応） */
+export const FEEL_LABELS: Record<string, [string, string, string, string]> = {
+  睡眠: ['良く眠れる', '変わらない', '眠りづらい', '眠れない'],
+  食事: ['食べられる', '変わらない', '食べづらい', '食べられない'],
+  気分: ['良い', '変わらない', '沈みがち', 'とても沈む'],
+  'だるさ・体力': ['元気', '変わらない', 'だるい', '動けない'],
+  仕事や家事: ['できる', '変わらない', 'やりづらい', 'できない'],
+  '外出・人と会う': ['できる', '変わらない', 'おっくう', 'できない'],
+}
+/** 項目ごとの、質問の文 */
+export const FEEL_Q: Record<string, string> = {
+  睡眠: '最近、よく眠れていますか？',
+  食事: '最近、食事はとれていますか？',
+  気分: '最近の気分は、どうですか？',
+  'だるさ・体力': '最近のだるさ・体力は、どうですか？',
+  仕事や家事: '最近、仕事や家事はできていますか？',
+  '外出・人と会う': '最近、外出したり、人と会ったりできていますか？',
+}
+const LV_ORDER = ['good', 'same', 'little', 'hard']
+/** 項目ごとの、段階の言葉（知らない項目は、共通の言葉） */
+export const levelLabel = (item: string, k: Level | ''): string => {
+  const i = LV_ORDER.indexOf(k)
+  if (i < 0) return ''
+  return FEEL_LABELS[item]?.[i] ?? LEVELS[i].label
+}
+
 export const EFFECTS = [
   { k: 'worked', label: '効いた' },
   { k: 'same', label: 'あまり変わらない' },

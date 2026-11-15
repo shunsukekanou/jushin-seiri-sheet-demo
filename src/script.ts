@@ -1,5 +1,5 @@
 // 口頭で伝えるカンペ（話す順番と、そのまま読める文）を作る
-import { alsoList, effectLabel, FEEL_ITEMS, mainLabel, stockLabel } from './data'
+import { alsoList, effectLabel, FEEL_ITEMS, levelLabel, mainLabel, stockLabel } from './data'
 import type { Draft, Med } from './types'
 
 export interface Point {
@@ -43,11 +43,12 @@ export function makeScript(d: Draft, meds: Med[]): Point[] {
 
   // 3 全体感・生活の変化
   const g = feelGroups(d)
+  const withLabel = (items: string[], k: 'hard' | 'little') => items.map((i) => `${i}（${levelLabel(i, k)}）`).join('、')
   const f: string[] = []
-  if (g.hard.length) f.push(`「つらい」のは、${join(g.hard)}です。`)
-  if (g.little.length) f.push(`「少しつらい」のは、${join(g.little)}です。`)
+  if (g.hard.length) f.push(`強く出ているのは、${withLabel(g.hard, 'hard')}です。`)
+  if (g.little.length) f.push(`少し気になるのは、${withLabel(g.little, 'little')}です。`)
   if (g.same.length) f.push(`${join(g.same)}は、変わりません。`)
-  if (g.good.length) f.push(`${join(g.good)}は、良いです。`)
+  if (g.good.length) f.push(`${join(g.good)}は、良い状態です。`)
   if (d.feelMemo.trim()) f.push(d.feelMemo.trim())
   out.push({
     key: 'feel',

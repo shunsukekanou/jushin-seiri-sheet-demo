@@ -1,4 +1,4 @@
-import { alsoList, effectLabel, FEEL_ITEMS, fmtDate, levelOf, mainLabel, stockLabel } from './data'
+import { alsoList, effectLabel, FEEL_ITEMS, fmtDate, levelLabel, levelOf, mainLabel, stockLabel } from './data'
 import type { Draft, Med } from './types'
 
 const none = <span className="none">（未入力）</span>
@@ -56,7 +56,7 @@ export function Sheet({ d, meds }: { d: Draft; meds: Med[] }) {
                 <span className="fval">
                   {l ? (
                     <>
-                      <b>{l.mark}</b> {l.label}
+                      <b>{l.mark}</b> {levelLabel(it, l.k)}
                     </>
                   ) : (
                     '―'
