@@ -154,14 +154,14 @@ export default function App() {
           </div>
           <p className="tag">受診前の、伝え漏れを防ぐ。</p>
           <p className="lead">
-            診察前に、選ぶだけで5つの質問に答えると、<b>医師に見せられるA4・1枚のシート</b>と、
-            <b>口頭で伝えるカンペ</b>ができます。待合室で約3分です。
+            <b>5つの質問に答えるだけ</b>で、医師に伝えたいことが気軽にまとめられます。待合室で<b>約3分</b>。
+            <b>A4用紙への印刷</b>にも対応しています。
           </p>
 
           <div className="homeBtns">
             <button type="button" className="btn big" onClick={startNew}>
               問診を始める
-              <small>今日の状況をまとめる（5ステップ・約3分）</small>
+              <small>今日の状況をまとめる（約3分）</small>
             </button>
             <button
               type="button"
@@ -330,10 +330,10 @@ export default function App() {
           <div className="tools noPrint">
             <div className="seg" role="tablist" aria-label="表示の切り替え">
               <button type="button" role="tab" aria-selected={view === 'kanpe'} className={view === 'kanpe' ? 'on' : ''} onClick={() => setView('kanpe')}>
-                カンペ（口で伝える）
+                カンペ<small>口で伝える</small>
               </button>
               <button type="button" role="tab" aria-selected={view === 'sheet'} className={view === 'sheet' ? 'on' : ''} onClick={() => setView('sheet')}>
-                シート（医師に見せる）
+                シート<small>医師に見せる</small>
               </button>
             </div>
             <div className="acts">
