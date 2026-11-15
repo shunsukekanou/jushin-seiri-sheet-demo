@@ -99,9 +99,9 @@ export const ASKS = [
   'お薬の処方（残りが少ない）をお願いしたい',
 ]
 
-/** 「その他」を選んで内容を書いたときは、「その他（内容）」と表示する */
-export const mainLabel = (d: Draft) => (d.main === 'その他' && d.mainOther?.trim() ? `その他（${d.mainOther.trim()}）` : d.main)
-export const alsoList = (d: Draft) => d.also.map((a) => (a === 'その他' && d.alsoOther?.trim() ? `その他（${d.alsoOther.trim()}）` : a))
+/** 「その他」を選んで内容を書いたときは、「その他」とは書かず、内容だけを表示する（書かなかったときだけ「その他」） */
+export const mainLabel = (d: Draft) => (d.main === 'その他' && d.mainOther?.trim() ? d.mainOther.trim() : d.main)
+export const alsoList = (d: Draft) => d.also.map((a) => (a === 'その他' && d.alsoOther?.trim() ? d.alsoOther.trim() : a))
 
 export const levelOf = (k: Level | '') => LEVELS.find((l) => l.k === k)
 export const effectLabel = (k: string) => EFFECTS.find((e) => e.k === k)?.label ?? ''

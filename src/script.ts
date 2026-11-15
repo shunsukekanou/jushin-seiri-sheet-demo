@@ -37,7 +37,10 @@ export function makeScript(d: Draft, meds: Med[]): Point[] {
   const w: string[] = []
   if (d.since) w.push(`${d.since}です。`)
   if (d.freq) w.push(`頻度は「${d.freq}」です。`)
-  if (d.triggers.length) w.push(`${join(d.triggers)}に出やすいです。`)
+  // 「特にきっかけはない」は、「〜に出やすい」の形にせず、文を分ける
+  const trig = d.triggers.filter((t) => t !== '特にきっかけはない')
+  if (trig.length) w.push(`${join(trig)}に出やすいです。`)
+  if (d.triggers.includes('特にきっかけはない')) w.push(trig.length ? 'また、特にきっかけがないときもあります。' : '特に、きっかけは思い当たりません。')
   if (d.whenMemo.trim()) w.push(d.whenMemo.trim())
   out.push({ key: 'when', title: '2　いつから・どんなとき', text: w.length ? w.join('') : '（入力なし）' })
 
