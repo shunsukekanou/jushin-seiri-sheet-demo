@@ -2,6 +2,18 @@
 import { alsoList, effectLabel, FEEL_ITEMS, levelLabel, mainLabel, stockLabel } from './data'
 import type { Draft, Med } from './types'
 
+/** 頻度を、自然な文にする */
+const FREQ_SENTENCE: Record<string, string> = {
+  ずっと続いている: 'ずっと続いています。',
+  毎日: '毎日あります。',
+  週に数回: '週に数回あります。',
+  ときどき: 'ときどきあります。',
+  '突然1回だけ': '突然、1回だけありました。',
+}
+/** 文の中で使うときの、項目の呼び方 */
+const nm = (i: string) => (i === '外出・人と会う' ? '外出・人と会うこと' : i)
+const endSentence = (t: string) => (/[。！？]$/.test(t) ? t : `${t}。`)
+
 export interface Point {
   key: string
   title: string
@@ -35,8 +47,8 @@ export function makeScript(d: Draft, meds: Med[]): Point[] {
 
   // 2 いつから・どんなとき
   const w: string[] = []
-  if (d.since) w.push(`${d.since}です。`)
-  if (d.freq) w.push(`頻度は「${d.freq}」です。`)
+  if (d.since) w.push(d.since === '今日' ? '今日からです。' : `${d.since}です。`)
+  if (d.freq) w.push(FREQ_SENTENCE[d.freq] ?? `頻度は「${d.freq}」です。`)
   // 「特にきっかけはない」は、「〜に出やすい」の形にせず、文を分ける
   const trig = d.triggers.filter((t) => t !== '特にきっかけはない')
   if (trig.length) w.push(`${join(trig)}に出やすいです。`)
@@ -46,12 +58,12 @@ export function makeScript(d: Draft, meds: Med[]): Point[] {
 
   // 3 全体感・生活の変化
   const g = feelGroups(d)
-  const withLabel = (items: string[], k: 'hard' | 'little') => items.map((i) => `${i}（${levelLabel(i, k)}）`).join('、')
+  const withLabel = (items: string[], k: 'hard' | 'little') => items.map((i) => `${nm(i)}（${levelLabel(i, k)}）`).join('、')
   const f: string[] = []
   if (g.hard.length) f.push(`強く出ているのは、${withLabel(g.hard, 'hard')}です。`)
   if (g.little.length) f.push(`少し気になるのは、${withLabel(g.little, 'little')}です。`)
-  if (g.same.length) f.push(`${join(g.same)}は、変わりません。`)
-  if (g.good.length) f.push(`${join(g.good)}は、良い状態です。`)
+  if (g.same.length) f.push(`${join(g.same.map(nm))}は、変わりません。`)
+  if (g.good.length) f.push(`${join(g.good.map(nm))}は、良い状態です。`)
   if (d.feelMemo.trim()) f.push(d.feelMemo.trim())
   out.push({
     key: 'feel',
@@ -63,14 +75,14 @@ export function makeScript(d: Draft, meds: Med[]): Point[] {
   const lines: string[] = []
   for (const m of meds) {
     const l = d.medLogs[m.id]
-    const parts = [m.name]
-    if (l?.effect) parts.push(`${effectLabel(l.effect)}`)
+    const parts: string[] = []
+    if (l?.effect) parts.push(`効き目は「${effectLabel(l.effect)}」`)
     if (l?.stock && l.stock !== 'enough') parts.push(`残りは「${stockLabel(l.stock)}」`)
     if (l?.note.trim()) parts.push(l.note.trim())
-    lines.push(parts.join('：'))
+    lines.push(parts.length ? `${m.name}：${parts.join('、')}` : m.name)
   }
   let t4 = meds.length ? `いま使っているお薬は${meds.length}種類です。` : 'いま使っているお薬は、ありません（登録なし）。'
-  if (d.tried.trim()) t4 += d.tried.trim()
+  if (d.tried.trim()) t4 += `これまでの対処は、${endSentence(d.tried.trim())}`
   out.push({ key: 'meds', title: '4　お薬と、これまでの対処', text: t4, sub: lines })
 
   // 5 聞きたいこと
