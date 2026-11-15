@@ -20,7 +20,7 @@ export default function App() {
   const [sample, setSample] = useState<{ id: string; label: string; draft: Draft; meds: Med[] } | null>(null)
   const [screen, setScreen] = useState<Screen>('home')
   const [view, setView] = useState<View>('kanpe')
-  const [medsFrom, setMedsFrom] = useState<'home' | 'new' | 'step'>('home')
+  const [medsFrom, setMedsFrom] = useState<'home' | 'step'>('home')
   const [toast, setToast] = useState('')
   const [storeOk, setStoreOk] = useState(true)
   const tt = useRef<number | undefined>(undefined)
@@ -63,7 +63,7 @@ export default function App() {
   }
 
   // お薬の登録は、問診とは別の画面。どこから来たかで、戻り先と、ボタンの言葉が変わる
-  const openMeds = (from: 'home' | 'new' | 'step') => {
+  const openMeds = (from: 'home' | 'step') => {
     setMedsFrom(from)
     go('meds')
   }
@@ -72,7 +72,7 @@ export default function App() {
     if (!sample && hasContent(mineDraft) && !confirm('入力中の内容を消して、新しく始めますか？\n（いつものお薬は残ります）')) return
     setSample(null)
     setMineDraft(emptyDraft())
-    openMeds('new')
+    goStep(0)
   }
   const fromHistory = (h: HistoryItem, keepDate: boolean) => {
     // 保存時のお薬のうち、いまの一覧に無いものは足す（記録を開いても欠けないように）
@@ -160,11 +160,27 @@ export default function App() {
 
           <div className="homeBtns">
             <button type="button" className="btn big" onClick={startNew}>
-              新しく始める（5ステップ）
+              問診を始める
+              <small>今日の状況をまとめる（5ステップ・約3分）</small>
+            </button>
+            <button
+              type="button"
+              className="btn big green"
+              onClick={() => {
+                setSample(null)
+                openMeds('home')
+              }}
+            >
+              お薬の記録を追加する
+              <small>
+                {mineMeds.length
+                  ? `登録済み ${mineMeds.length}件：${mineMeds.map((m) => m.name).join('、')}`
+                  : '飲んでいるお薬を登録しておく（任意）'}
+              </small>
             </button>
             {canContinue && (
               <button type="button" className="btn big alt" onClick={() => goStep(Math.min(d.step, 4))}>
-                入力中の続きから
+                入力中の問診の、続きから
               </button>
             )}
             {history[0] && (
@@ -173,10 +189,10 @@ export default function App() {
                 className="btn big alt"
                 onClick={() => {
                   fromHistory(history[0], false)
-                  openMeds('new')
+                  goStep(0)
                 }}
               >
-                前回の記録から始める
+                前回の記録から、問診を始める
                 <small>
                   {fmtDate(history[0].draft.date)}
                   {history[0].draft.place ? `・${history[0].draft.place}` : ''}
@@ -184,25 +200,6 @@ export default function App() {
               </button>
             )}
           </div>
-
-          <section className="card">
-            <h2>いつものお薬</h2>
-            <p>
-              {mineMeds.length ? (
-                <>
-                  {mineMeds.length}件 登録済み：{mineMeds.map((m) => m.name).join('、')}
-                </>
-              ) : (
-                '飲んでいるお薬を登録しておくと、問診で毎回使えます（登録しなくても大丈夫です）。'
-              )}
-            </p>
-            <button type="button" className="btn ghost" onClick={() => {
-                setSample(null)
-                openMeds('home')
-              }}>
-              お薬を登録・確認する
-            </button>
-          </section>
 
           {history.length > 0 && (
             <section className="card">
@@ -308,26 +305,22 @@ export default function App() {
         <main className="stepPage">
           <div className="stepBody">
             <h2 className="qh">
-              <span className="no">✚</span>いつものお薬を、登録しますか？
+              <span className="no">✚</span>いつものお薬の記録
             </h2>
             <p className="hint">
-              飲んでいるお薬を一度登録すると、次からは書き直さずに使えます。登録しなくても大丈夫です（あとからでも登録できます）。
+              飲んでいるお薬を一度登録しておくと、問診で毎回使えます（書き直しは要りません）。
             </p>
             <MedsEditor meds={meds} setMeds={setMeds} />
           </div>
           <div className="navBar noPrint">
-            <button type="button" className="btn ghost" onClick={() => (medsFrom === 'step' ? goStep(d.step) : go('home'))}>
-              {medsFrom === 'step' ? '← 問診に戻る' : '← 最初へ'}
-            </button>
-            {medsFrom === 'home' ? (
-              <button type="button" className="btn" onClick={() => go('home')}>
-                登録を終える
-              </button>
-            ) : (
-              <button type="button" className="btn" onClick={() => goStep(medsFrom === 'step' ? d.step : 0)}>
-                {medsFrom === 'step' ? '問診に戻る →' : meds.length ? '問診に進む →' : 'スキップして問診へ →'}
+            {medsFrom === 'home' && (
+              <button type="button" className="btn ghost" onClick={() => go('home')}>
+                ← 最初へ
               </button>
             )}
+            <button type="button" className="btn" onClick={() => (medsFrom === 'step' ? goStep(d.step) : go('home'))}>
+              {medsFrom === 'step' ? '← 問診に戻る' : '登録を終える'}
+            </button>
           </div>
         </main>
       )}
