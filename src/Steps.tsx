@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { ASKS, EFFECTS, FEEL_ITEMS, FREQ, LEVELS, SINCE, STOCKS, TOPICS, TRIGGERS } from './data'
-import { uid } from './storage'
 import type { Draft, Level, Med, MedLog } from './types'
 
 export const STEP_NAMES = ['伝えたいこと', 'いつから', '全体の様子', 'お薬', '聞きたいこと']
@@ -9,7 +8,7 @@ interface Props {
   d: Draft
   meds: Med[]
   setD: (f: (d: Draft) => Draft) => void
-  setMeds: (f: (m: Med[]) => Med[]) => void
+  goMeds: () => void
 }
 
 function Chips({
@@ -148,56 +147,25 @@ function Step3({ d, setD }: Props) {
   )
 }
 
-function Step4({ d, meds, setD, setMeds }: Props) {
-  const [name, setName] = useState('')
-  const [how, setHow] = useState('')
+function Step4({ d, meds, setD, goMeds }: Props) {
   const log = (id: string): MedLog => d.medLogs[id] ?? { effect: '', stock: '', note: '' }
   const upd = (id: string, p: Partial<MedLog>) =>
     setD((x) => ({ ...x, medLogs: { ...x.medLogs, [id]: { ...log(id), ...p } } }))
-  const add = () => {
-    const n = name.trim()
-    if (!n) return
-    setMeds((m) => [...m, { id: uid(), name: n, how: how.trim() }])
-    setName('')
-    setHow('')
-  }
   return (
     <>
       <h2 className="qh">
-        <span className="no">4</span>お薬と、これまでの対処
+        <span className="no">4</span>お薬の様子と、これまでの対処
       </h2>
-      <p className="hint">いつものお薬は、一度登録すれば、次からは書き直さずに選べます。</p>
-      {meds.length === 0 && <p className="empty">まだお薬が登録されていません。飲んでいなければ、そのまま次へ進めます。</p>}
+      <p className="hint">登録したお薬ごとに、今回の効き目と残りを選びます。</p>
+      {meds.length === 0 && <p className="empty">登録されたお薬はありません。このまま、次へ進めます。</p>}
       {meds.map((m) => {
         const l = log(m.id)
         return (
           <div className="medCard" key={m.id}>
-            <div className="medHead">
-              <input
-                className="medName"
-                aria-label="お薬の名前"
-                value={m.name}
-                onChange={(e) => setMeds((a) => a.map((x) => (x.id === m.id ? { ...x, name: e.target.value } : x)))}
-              />
-              <button
-                type="button"
-                className="btn ghost small"
-                onClick={() => {
-                  if (confirm(`「${m.name}」を、いつものお薬から外しますか？`)) {
-                    setMeds((a) => a.filter((x) => x.id !== m.id))
-                  }
-                }}
-              >
-                外す
-              </button>
+            <div className="medTitle">
+              {m.name}
+              {m.how && <small>{m.how}</small>}
             </div>
-            <input
-              className="medHow"
-              aria-label="飲み方"
-              value={m.how}
-              placeholder="飲み方（例：朝食後 1錠）"
-              onChange={(e) => setMeds((a) => a.map((x) => (x.id === m.id ? { ...x, how: e.target.value } : x)))}
-            />
             <div className="miniLab">効き目</div>
             <div className="chips tight">
               {EFFECTS.map((e) => (
@@ -236,14 +204,9 @@ function Step4({ d, meds, setD, setMeds }: Props) {
           </div>
         )
       })}
-      <div className="addMed">
-        <div className="miniLab">お薬を追加する</div>
-        <input value={name} placeholder="お薬の名前" aria-label="追加するお薬の名前" onChange={(e) => setName(e.target.value)} />
-        <input value={how} placeholder="飲み方（任意）" aria-label="追加するお薬の飲み方" onChange={(e) => setHow(e.target.value)} />
-        <button type="button" className="btn" onClick={add} disabled={!name.trim()}>
-          ＋ 追加する
-        </button>
-      </div>
+      <button type="button" className="btn ghost small medsLink" onClick={goMeds}>
+        お薬の登録を直す・追加する
+      </button>
       <label className="lab" htmlFor="tr">
         これまでの対処・お薬の気づき（任意）
       </label>

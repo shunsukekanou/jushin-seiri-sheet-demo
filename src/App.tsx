@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { emptyDraft, fmtDate, SAMPLES } from './data'
 import { Kanpe } from './Kanpe'
+import { MedsEditor } from './Meds'
 import { Sheet } from './Sheet'
 import { STEP_NAMES, StepBody } from './Steps'
 import { clearAll, loadDraft, loadHistory, loadMeds, saveDraft, saveHistory, saveMeds, uid } from './storage'
 import type { Draft, HistoryItem, Med } from './types'
 
-type Screen = 'home' | 'step' | 'result'
+type Screen = 'home' | 'meds' | 'step' | 'result'
 type View = 'kanpe' | 'sheet'
 
 const hasContent = (d: Draft) =>
-  !!(d.main || d.topicMemo || d.since || d.freq || d.triggers.length || d.asks.length || d.tried || Object.keys(d.feel).length || d.also.length)
+  !!(d.main || d.topicMemo || d.since || d.freq || d.triggers.length || d.asks.length || d.tried || Object.keys(d.feel).length || d.also.length || Object.keys(d.medLogs).length || d.place || d.whenMemo || d.feelMemo || d.askMemo)
 
 export default function App() {
   const [mineMeds, setMineMeds] = useState<Med[]>(loadMeds)
@@ -19,6 +20,7 @@ export default function App() {
   const [sample, setSample] = useState<{ id: string; label: string; draft: Draft; meds: Med[] } | null>(null)
   const [screen, setScreen] = useState<Screen>('home')
   const [view, setView] = useState<View>('kanpe')
+  const [medsFrom, setMedsFrom] = useState<'home' | 'new' | 'step'>('home')
   const [toast, setToast] = useState('')
   const [storeOk, setStoreOk] = useState(true)
   const tt = useRef<number | undefined>(undefined)
@@ -60,11 +62,17 @@ export default function App() {
     go('step')
   }
 
+  // お薬の登録は、問診とは別の画面。どこから来たかで、戻り先と、ボタンの言葉が変わる
+  const openMeds = (from: 'home' | 'new' | 'step') => {
+    setMedsFrom(from)
+    go('meds')
+  }
+
   const startNew = () => {
     if (!sample && hasContent(mineDraft) && !confirm('入力中の内容を消して、新しく始めますか？\n（いつものお薬は残ります）')) return
     setSample(null)
     setMineDraft(emptyDraft())
-    goStep(0)
+    openMeds('new')
   }
   const fromHistory = (h: HistoryItem, keepDate: boolean) => {
     // 保存時のお薬のうち、いまの一覧に無いものは足す（記録を開いても欠けないように）
@@ -165,7 +173,7 @@ export default function App() {
                 className="btn big alt"
                 onClick={() => {
                   fromHistory(history[0], false)
-                  goStep(0)
+                  openMeds('new')
                 }}
               >
                 前回の記録から始める
@@ -185,10 +193,13 @@ export default function App() {
                   {mineMeds.length}件 登録済み：{mineMeds.map((m) => m.name).join('、')}
                 </>
               ) : (
-                '登録するとステップ4で毎回選べます。'
+                '飲んでいるお薬を登録しておくと、問診で毎回使えます（登録しなくても大丈夫です）。'
               )}
             </p>
-            <button type="button" className="btn ghost" onClick={() => (setSample(null), goStep(3))}>
+            <button type="button" className="btn ghost" onClick={() => {
+                setSample(null)
+                openMeds('home')
+              }}>
               お薬を登録・確認する
             </button>
           </section>
@@ -271,7 +282,7 @@ export default function App() {
             ))}
           </nav>
           <div className="stepBody">
-            <StepBody step={d.step} d={d} meds={meds} setD={setD} setMeds={setMeds} />
+            <StepBody step={d.step} d={d} meds={meds} setD={setD} goMeds={() => openMeds('step')} />
           </div>
           <div className="navBar noPrint">
             <button type="button" className="btn ghost" disabled={d.step === 0} onClick={() => goStep(d.step - 1)}>
@@ -287,6 +298,34 @@ export default function App() {
             ) : (
               <button type="button" className="btn" onClick={() => showResult('kanpe')}>
                 シートを作る
+              </button>
+            )}
+          </div>
+        </main>
+      )}
+
+      {screen === 'meds' && (
+        <main className="stepPage">
+          <div className="stepBody">
+            <h2 className="qh">
+              <span className="no">✚</span>いつものお薬を、登録しますか？
+            </h2>
+            <p className="hint">
+              飲んでいるお薬を一度登録すると、次からは書き直さずに使えます。登録しなくても大丈夫です（あとからでも登録できます）。
+            </p>
+            <MedsEditor meds={meds} setMeds={setMeds} />
+          </div>
+          <div className="navBar noPrint">
+            <button type="button" className="btn ghost" onClick={() => (medsFrom === 'step' ? goStep(d.step) : go('home'))}>
+              {medsFrom === 'step' ? '← 問診に戻る' : '← 最初へ'}
+            </button>
+            {medsFrom === 'home' ? (
+              <button type="button" className="btn" onClick={() => go('home')}>
+                登録を終える
+              </button>
+            ) : (
+              <button type="button" className="btn" onClick={() => goStep(medsFrom === 'step' ? d.step : 0)}>
+                {medsFrom === 'step' ? '問診に戻る →' : meds.length ? '問診に進む →' : 'スキップして問診へ →'}
               </button>
             )}
           </div>

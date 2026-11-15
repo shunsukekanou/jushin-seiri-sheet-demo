@@ -111,6 +111,9 @@ input:focus, textarea:focus { border-color: var(--pri); outline: none; box-shado
 .medCard { border: 1px solid var(--line); border-radius: .9rem; padding: .7rem .75rem .8rem; margin: .6rem 0; background: #fbfcfe; }
 .medHead { display: flex; gap: .4rem; align-items: center; }
 .medName { font-weight: 800; }
+.medTitle { font-weight: 800; font-size: 1.05rem; }
+.medTitle small { display: block; font-weight: 500; color: var(--sub); font-size: .88rem; }
+.medsLink { margin: .4rem 0 .2rem; }
 .medHead .btn { flex: 0 0 auto; white-space: nowrap; }
 .medHow, .medNote { margin-top: .4rem; font-size: .92rem; }
 .addMed { display: grid; gap: .4rem; border: 2px dashed var(--line); border-radius: .9rem; padding: .7rem .75rem; margin-top: .7rem; }
